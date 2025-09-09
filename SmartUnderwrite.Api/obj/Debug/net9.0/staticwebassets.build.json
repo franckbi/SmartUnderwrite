@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "EuWYNHyBu8/mYzOXmV/5uKWXEyeXtVLxV8BCO77fwJI=",
+  "Source": "SmartUnderwrite.Api",
+  "BasePath": "_content/SmartUnderwrite.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

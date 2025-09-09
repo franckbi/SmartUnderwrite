@@ -1,0 +1,12 @@
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/bin/Debug/net9.0/SmartUnderwrite.Core.deps.json
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/bin/Debug/net9.0/SmartUnderwrite.Core.dll
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/bin/Debug/net9.0/SmartUnderwrite.Core.pdb
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/obj/Debug/net9.0/SmartUnderwrite.Core.csproj.AssemblyReference.cache
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/obj/Debug/net9.0/SmartUnderwrite.Core.GeneratedMSBuildEditorConfig.editorconfig
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/obj/Debug/net9.0/SmartUnderwrite.Core.AssemblyInfoInputs.cache
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/obj/Debug/net9.0/SmartUnderwrite.Core.AssemblyInfo.cs
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/obj/Debug/net9.0/SmartUnderwrite.Core.csproj.CoreCompileInputs.cache
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/obj/Debug/net9.0/SmartUnderwrite.Core.dll
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/obj/Debug/net9.0/refint/SmartUnderwrite.Core.dll
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/obj/Debug/net9.0/SmartUnderwrite.Core.pdb
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/obj/Debug/net9.0/ref/SmartUnderwrite.Core.dll

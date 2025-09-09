@@ -1,0 +1,17 @@
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/bin/Debug/net9.0/SmartUnderwrite.Infrastructure.deps.json
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/bin/Debug/net9.0/SmartUnderwrite.Infrastructure.runtimeconfig.json
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/bin/Debug/net9.0/SmartUnderwrite.Infrastructure.dll
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/bin/Debug/net9.0/SmartUnderwrite.Infrastructure.pdb
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/bin/Debug/net9.0/SmartUnderwrite.Core.dll
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/bin/Debug/net9.0/SmartUnderwrite.Core.pdb
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/obj/Debug/net9.0/SmartUnderwrite.Infrastructure.csproj.AssemblyReference.cache
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/obj/Debug/net9.0/SmartUnderwrite.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/obj/Debug/net9.0/SmartUnderwrite.Infrastructure.AssemblyInfoInputs.cache
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/obj/Debug/net9.0/SmartUnderwrite.Infrastructure.AssemblyInfo.cs
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/obj/Debug/net9.0/SmartUnderwrite.Infrastructure.csproj.CoreCompileInputs.cache
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/obj/Debug/net9.0/SmartUnd.2CD05622.Up2Date
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/obj/Debug/net9.0/SmartUnderwrite.Infrastructure.dll
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/obj/Debug/net9.0/refint/SmartUnderwrite.Infrastructure.dll
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/obj/Debug/net9.0/SmartUnderwrite.Infrastructure.pdb
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/obj/Debug/net9.0/SmartUnderwrite.Infrastructure.genruntimeconfig.cache
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/obj/Debug/net9.0/ref/SmartUnderwrite.Infrastructure.dll
