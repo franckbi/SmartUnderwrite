@@ -1,0 +1,46 @@
+meta {
+  name: Create Rule - Invalid JSON
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/rules
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "name": "Invalid Rule",
+    "ruleDefinition": {
+      "name": "Invalid Rule",
+      "priority": "invalid_priority",
+      "clauses": [
+        {
+          "if": "InvalidExpression >>>",
+          "then": "INVALID_OUTCOME",
+          "reason": "Invalid reason"
+        }
+      ]
+    },
+    "priority": 50,
+    "isActive": true
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.errors: isDefined
+}
+
+tests {
+  test("Invalid rule definition returns validation error", function() {
+    expect(res.status).to.equal(400);
+    expect(res.body.errors).to.be.an("object");
+  });
+}

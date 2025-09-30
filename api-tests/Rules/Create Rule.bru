@@ -1,0 +1,73 @@
+meta {
+  name: Create Rule
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/rules
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+body:json {
+  {
+    "name": "Test Credit Score Rule",
+    "ruleDefinition": {
+      "name": "Test Credit Score Rule",
+      "priority": 100,
+      "clauses": [
+        {
+          "if": "CreditScore < 600",
+          "then": "REJECT",
+          "reason": "Credit score too low"
+        },
+        {
+          "if": "CreditScore >= 750",
+          "then": "APPROVE",
+          "reason": "Excellent credit score"
+        }
+      ],
+      "score": {
+        "base": 500,
+        "add": [
+          {
+            "when": "CreditScore >= 700",
+            "points": 100
+          }
+        ]
+      }
+    },
+    "priority": 100,
+    "isActive": true
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.id: isDefined
+  res.body.name: eq Test Credit Score Rule
+  res.body.priority: eq 100
+  res.body.isActive: eq true
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setEnvVar("testRuleId", res.body.id);
+  }
+}
+
+tests {
+  test("Rule created successfully", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body.id).to.be.a("number");
+    expect(res.body.name).to.equal("Test Credit Score Rule");
+    expect(res.body.priority).to.equal(100);
+    expect(res.body.isActive).to.equal(true);
+    expect(res.body.ruleDefinition).to.be.an("object");
+  });
+}

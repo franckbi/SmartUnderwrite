@@ -1,0 +1,26 @@
+# Development Dockerfile with hot reload for SmartUnderwrite API
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS development
+WORKDIR /app
+
+# Install dotnet-ef tool for migrations
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+# Copy project files and restore dependencies
+COPY ["SmartUnderwrite.Api/SmartUnderwrite.Api.csproj", "SmartUnderwrite.Api/"]
+COPY ["SmartUnderwrite.Core/SmartUnderwrite.Core.csproj", "SmartUnderwrite.Core/"]
+COPY ["SmartUnderwrite.Infrastructure/SmartUnderwrite.Infrastructure.csproj", "SmartUnderwrite.Infrastructure/"]
+RUN dotnet restore "SmartUnderwrite.Api/SmartUnderwrite.Api.csproj"
+
+# Copy source code
+COPY . .
+
+WORKDIR /app/SmartUnderwrite.Api
+
+# Install dotnet watch for hot reload
+RUN dotnet tool install --global dotnet-watch
+
+EXPOSE 8080
+
+# Use dotnet watch for hot reload in development
+CMD ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:8080"]

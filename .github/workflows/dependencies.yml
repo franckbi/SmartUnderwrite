@@ -1,0 +1,142 @@
+name: Dependencies
+
+on:
+  schedule:
+    # Run weekly on Mondays at 9 AM UTC
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+jobs:
+  update-dotnet:
+    name: Update .NET Dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Update NuGet packages
+        run: |
+          # Update all projects
+          for project in $(find . -name "*.csproj"); do
+            echo "Updating packages in $project"
+            dotnet add "$project" package Microsoft.EntityFrameworkCore --version "8.*"
+            dotnet add "$project" package Microsoft.AspNetCore.Authentication.JwtBearer --version "8.*"
+            dotnet add "$project" package Serilog.AspNetCore --version "*"
+          done
+
+      - name: Build and test
+        run: |
+          dotnet restore
+          dotnet build --no-restore
+          dotnet test --no-build
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update .NET dependencies"
+          title: "chore: update .NET dependencies"
+          body: |
+            Automated dependency update for .NET packages.
+
+            - Updated NuGet packages to latest compatible versions
+            - All tests passing
+          branch: chore/update-dotnet-dependencies
+          delete-branch: true
+
+  update-npm:
+    name: Update NPM Dependencies
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: SmartUnderwrite.Frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: SmartUnderwrite.Frontend/package-lock.json
+
+      - name: Update NPM packages
+        run: |
+          npm update
+          npm audit fix --audit-level moderate
+
+      - name: Build and test
+        run: |
+          npm run build
+          npm run test:ci
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update NPM dependencies"
+          title: "chore: update NPM dependencies"
+          body: |
+            Automated dependency update for NPM packages.
+
+            - Updated NPM packages to latest compatible versions
+            - Fixed security vulnerabilities
+            - All tests passing
+          branch: chore/update-npm-dependencies
+          delete-branch: true
+
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: .NET Security Audit
+        run: |
+          dotnet list package --vulnerable --include-transitive > dotnet-vulnerabilities.txt
+          if [ -s dotnet-vulnerabilities.txt ]; then
+            echo "::warning::.NET vulnerabilities found"
+            cat dotnet-vulnerabilities.txt
+          fi
+
+      - name: NPM Security Audit
+        working-directory: SmartUnderwrite.Frontend
+        run: |
+          npm audit --audit-level high --json > npm-audit.json || true
+          if [ -s npm-audit.json ] && [ "$(jq '.metadata.vulnerabilities.high + .metadata.vulnerabilities.critical' npm-audit.json)" != "0" ]; then
+            echo "::warning::NPM high/critical vulnerabilities found"
+            npm audit --audit-level high
+          fi
+
+      - name: Upload audit results
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-results
+          path: |
+            dotnet-vulnerabilities.txt
+            SmartUnderwrite.Frontend/npm-audit.json

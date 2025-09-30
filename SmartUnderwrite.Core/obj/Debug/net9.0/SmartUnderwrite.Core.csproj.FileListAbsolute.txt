@@ -10,3 +10,4 @@
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/obj/Debug/net9.0/refint/SmartUnderwrite.Core.dll
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/obj/Debug/net9.0/SmartUnderwrite.Core.pdb
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/obj/Debug/net9.0/ref/SmartUnderwrite.Core.dll
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Core/obj/Debug/net9.0/SmartUnderwrite.Core.sourcelink.json

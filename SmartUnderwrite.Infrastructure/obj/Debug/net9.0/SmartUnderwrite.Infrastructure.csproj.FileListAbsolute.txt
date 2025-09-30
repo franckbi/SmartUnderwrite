@@ -15,3 +15,4 @@
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/obj/Debug/net9.0/SmartUnderwrite.Infrastructure.pdb
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/obj/Debug/net9.0/SmartUnderwrite.Infrastructure.genruntimeconfig.cache
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/obj/Debug/net9.0/ref/SmartUnderwrite.Infrastructure.dll
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Infrastructure/obj/Debug/net9.0/SmartUnderwrite.Infrastructure.sourcelink.json

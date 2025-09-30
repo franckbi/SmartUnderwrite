@@ -1,0 +1,26 @@
+meta {
+  name: Cross-Affiliate Access Denied
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/applications/999999
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{affiliateToken}}
+}
+
+assert {
+  res.status: in [403, 404]
+}
+
+tests {
+  test("Cross-affiliate access is denied", function() {
+    // Should return either 403 (Forbidden) or 404 (Not Found) for data segregation
+    expect(res.status).to.be.oneOf([403, 404]);
+  });
+}

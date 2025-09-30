@@ -1,0 +1,43 @@
+meta {
+  name: Get Audit Logs
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/audit?pageNumber=1&pageSize=10
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.items: isArray
+  res.body.totalCount: isDefined
+  res.body.pageNumber: eq 1
+  res.body.pageSize: eq 10
+}
+
+tests {
+  test("Get audit logs returns paginated audit trail", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body.items).to.be.an("array");
+    expect(res.body.totalCount).to.be.a("number");
+    expect(res.body.pageNumber).to.equal(1);
+    expect(res.body.pageSize).to.equal(10);
+    
+    if (res.body.items.length > 0) {
+      const auditLog = res.body.items[0];
+      expect(auditLog).to.have.property("id");
+      expect(auditLog).to.have.property("entityType");
+      expect(auditLog).to.have.property("entityId");
+      expect(auditLog).to.have.property("action");
+      expect(auditLog).to.have.property("timestamp");
+      expect(auditLog).to.have.property("userId");
+    }
+  });
+}

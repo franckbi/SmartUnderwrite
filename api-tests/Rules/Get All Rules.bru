@@ -1,0 +1,35 @@
+meta {
+  name: Get All Rules
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/rules
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{adminToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: isArray
+}
+
+tests {
+  test("Get all rules returns array of rules", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.be.an("array");
+    
+    if (res.body.length > 0) {
+      expect(res.body[0]).to.have.property("id");
+      expect(res.body[0]).to.have.property("name");
+      expect(res.body[0]).to.have.property("ruleDefinition");
+      expect(res.body[0]).to.have.property("priority");
+      expect(res.body[0]).to.have.property("isActive");
+    }
+  });
+}

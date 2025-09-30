@@ -1,0 +1,27 @@
+meta {
+  name: Readiness Check
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/health/readyz
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.Status: eq Ready
+  res.body.Timestamp: isDefined
+  res.body.DatabaseConnected: eq true
+}
+
+tests {
+  test("Readiness check returns ready status", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body.Status).to.equal("Ready");
+    expect(res.body.Timestamp).to.be.a("string");
+    expect(res.body.DatabaseConnected).to.equal(true);
+  });
+}

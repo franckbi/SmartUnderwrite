@@ -1,0 +1,15 @@
+# Production Environment Configuration
+# This file documents the required secrets and variables for the prod environment
+
+# Required Secrets:
+# - AWS_ROLE_ARN: ARN of the IAM role for GitHub Actions to assume
+# - JWT_SECRET: Secret key for JWT token signing (must be different from dev)
+
+# Required Variables:
+# - AWS_REGION: us-east-1
+# - ENVIRONMENT: prod
+
+# Protection Rules:
+# - Required reviewers: At least 1 reviewer from the team
+# - Prevent administrators from bypassing protection rules
+# - Deployment branches: Only main branch

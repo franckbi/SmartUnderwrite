@@ -1,0 +1,14 @@
+# Development Environment Configuration
+# This file documents the required secrets and variables for the dev environment
+
+# Required Secrets:
+# - AWS_ROLE_ARN: ARN of the IAM role for GitHub Actions to assume
+# - JWT_SECRET: Secret key for JWT token signing
+
+# Required Variables:
+# - AWS_REGION: us-east-1
+# - ENVIRONMENT: dev
+
+# Protection Rules:
+# - No required reviewers for dev environment
+# - Allow administrators to bypass protection rules

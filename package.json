@@ -1,0 +1,26 @@
+{
+  "name": "smartunderwrite-api-tests",
+  "version": "1.0.0",
+  "description": "API contract tests for SmartUnderwrite system",
+  "scripts": {
+    "test:api": "./run-api-tests.sh",
+    "validate:schema": "node validate-api-schema.js",
+    "test:health": "bru run api-tests/Health --env local",
+    "test:auth": "bru run api-tests/Auth --env local",
+    "test:applications": "bru run api-tests/Applications --env local",
+    "test:rules": "bru run api-tests/Rules --env local",
+    "test:audit": "bru run api-tests/Audit --env local"
+  },
+  "devDependencies": {
+    "@usebruno/cli": "^1.0.0"
+  },
+  "keywords": [
+    "api-testing",
+    "contract-testing",
+    "bruno",
+    "openapi",
+    "smartunderwrite"
+  ],
+  "author": "SmartUnderwrite Team",
+  "license": "MIT"
+}

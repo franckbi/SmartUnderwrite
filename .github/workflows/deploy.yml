@@ -1,0 +1,280 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - prod
+
+env:
+  DOTNET_VERSION: "8.0.x"
+  NODE_VERSION: "18"
+  AWS_REGION: "us-east-1"
+
+jobs:
+  build-api:
+    name: Build API Container
+    runs-on: ubuntu-latest
+
+    outputs:
+      image-uri: ${{ steps.build.outputs.image-uri }}
+      image-tag: ${{ steps.build.outputs.image-tag }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR Public
+        id: login-ecr-public
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry-type: public
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Generate image tag
+        id: image-tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            ENV="${{ github.event.inputs.environment }}"
+          else
+            ENV="dev"
+          fi
+          TAG="${ENV}-$(echo ${{ github.sha }} | cut -c1-7)-$(date +%s)"
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "environment=${ENV}" >> $GITHUB_OUTPUT
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: SmartUnderwrite.Api/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.login-ecr-public.outputs.registry }}/smartunderwrite/api:${{ steps.image-tag.outputs.tag }}
+            ${{ steps.login-ecr-public.outputs.registry }}/smartunderwrite/api:${{ steps.image-tag.outputs.environment }}-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+
+      - name: Set outputs
+        id: build
+        run: |
+          echo "image-uri=${{ steps.login-ecr-public.outputs.registry }}/smartunderwrite/api:${{ steps.image-tag.outputs.tag }}" >> $GITHUB_OUTPUT
+          echo "image-tag=${{ steps.image-tag.outputs.tag }}" >> $GITHUB_OUTPUT
+
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: SmartUnderwrite.Frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: SmartUnderwrite.Frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: SmartUnderwrite.Frontend
+        env:
+          NODE_ENV: production
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build-${{ github.sha }}
+          path: SmartUnderwrite.Frontend/dist/
+          retention-days: 7
+
+  deploy-infrastructure:
+    name: Deploy Infrastructure
+    runs-on: ubuntu-latest
+    needs: [build-api]
+
+    environment:
+      name: ${{ github.event.inputs.environment || 'dev' }}
+      url: ${{ steps.deploy.outputs.app-runner-url }}
+
+    outputs:
+      app-runner-url: ${{ steps.deploy.outputs.app-runner-url }}
+      s3-frontend-bucket: ${{ steps.deploy.outputs.s3-frontend-bucket }}
+      cloudfront-domain: ${{ steps.deploy.outputs.cloudfront-domain }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ~1.0
+          terraform_wrapper: false
+
+      - name: Determine environment
+        id: env
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            ENV="${{ github.event.inputs.environment }}"
+          else
+            ENV="dev"
+          fi
+          echo "environment=${ENV}" >> $GITHUB_OUTPUT
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Plan
+        working-directory: terraform
+        env:
+          TF_VAR_container_image_uri: ${{ needs.build-api.outputs.image-uri }}
+          TF_VAR_jwt_secret: ${{ secrets.JWT_SECRET }}
+        run: |
+          terraform plan \
+            -var-file="environments/${{ steps.env.outputs.environment }}.tfvars" \
+            -out=tfplan
+
+      - name: Terraform Apply
+        id: deploy
+        working-directory: terraform
+        env:
+          TF_VAR_container_image_uri: ${{ needs.build-api.outputs.image-uri }}
+          TF_VAR_jwt_secret: ${{ secrets.JWT_SECRET }}
+        run: |
+          terraform apply tfplan
+
+          # Capture outputs
+          echo "app-runner-url=$(terraform output -raw app_runner_service_url)" >> $GITHUB_OUTPUT
+          echo "s3-frontend-bucket=$(terraform output -raw s3_frontend_bucket)" >> $GITHUB_OUTPUT
+          echo "cloudfront-domain=$(terraform output -raw cloudfront_distribution_domain)" >> $GITHUB_OUTPUT
+
+      - name: Wait for App Runner deployment
+        run: |
+          echo "Waiting for App Runner service to be ready..."
+          sleep 60 # Give App Runner time to deploy the new image
+
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    needs: [build-frontend, deploy-infrastructure]
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build-${{ github.sha }}
+          path: dist/
+
+      - name: Deploy to S3
+        run: |
+          aws s3 sync dist/ s3://${{ needs.deploy-infrastructure.outputs.s3-frontend-bucket }}/ \
+            --delete \
+            --cache-control "public, max-age=31536000" \
+            --exclude "*.html" \
+            --exclude "*.json"
+
+          # Deploy HTML files with shorter cache
+          aws s3 sync dist/ s3://${{ needs.deploy-infrastructure.outputs.s3-frontend-bucket }}/ \
+            --delete \
+            --cache-control "public, max-age=0, must-revalidate" \
+            --include "*.html" \
+            --include "*.json"
+
+      - name: Invalidate CloudFront
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id $(aws cloudfront list-distributions \
+              --query "DistributionList.Items[?Comment=='${{ needs.deploy-infrastructure.outputs.cloudfront-domain }}'].Id" \
+              --output text) \
+            --paths "/*"
+
+  smoke-tests:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    needs: [deploy-infrastructure, deploy-frontend]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Bruno CLI
+        run: npm install -g @usebruno/cli
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for services to be fully ready..."
+          sleep 30
+
+      - name: Run smoke tests
+        env:
+          API_BASE_URL: ${{ needs.deploy-infrastructure.outputs.app-runner-url }}
+        run: |
+          # Test API health endpoint
+          curl -f "$API_BASE_URL/healthz" || exit 1
+
+          # Test frontend is accessible
+          curl -f "https://${{ needs.deploy-infrastructure.outputs.cloudfront-domain }}" || exit 1
+
+          echo "✅ Smoke tests passed"
+
+  notify:
+    name: Notify Deployment
+    runs-on: ubuntu-latest
+    needs: [deploy-infrastructure, deploy-frontend, smoke-tests]
+    if: always()
+
+    steps:
+      - name: Deployment Success
+        if: needs.smoke-tests.result == 'success'
+        run: |
+          echo "🚀 Deployment successful!"
+          echo "API URL: ${{ needs.deploy-infrastructure.outputs.app-runner-url }}"
+          echo "Frontend URL: https://${{ needs.deploy-infrastructure.outputs.cloudfront-domain }}"
+
+      - name: Deployment Failed
+        if: needs.smoke-tests.result != 'success'
+        run: |
+          echo "❌ Deployment failed!"
+          exit 1

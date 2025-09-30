@@ -1,0 +1,29 @@
+meta {
+  name: Health Check
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/health/healthz
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.Status: eq Healthy
+  res.body.Timestamp: isDefined
+  res.body.Version: isDefined
+  res.body.Environment: isDefined
+}
+
+tests {
+  test("Health check returns healthy status", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body.Status).to.equal("Healthy");
+    expect(res.body.Timestamp).to.be.a("string");
+    expect(res.body.Version).to.be.a("string");
+    expect(res.body.Environment).to.be.a("string");
+  });
+}

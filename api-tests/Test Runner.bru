@@ -1,0 +1,28 @@
+meta {
+  name: Test Runner
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/health/healthz
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  // This is a test runner that executes all test scenarios in sequence
+  console.log("Starting comprehensive API contract test suite...");
+  console.log("Base URL: " + bru.getEnvVar("baseUrl"));
+}
+
+script:post-response {
+  console.log("Test Runner completed. Check individual test results.");
+}
+
+tests {
+  test("API is accessible", function() {
+    expect(res.status).to.equal(200);
+    console.log("✓ API is accessible and healthy");
+  });
+}

@@ -1,0 +1,42 @@
+meta {
+  name: Manual Decision
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/applications/{{testApplicationId}}/decision
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{underwriterToken}}
+}
+
+body:json {
+  {
+    "outcome": "Approve",
+    "reasons": ["Manual approval after review", "Applicant provided additional documentation"],
+    "justification": "Applicant has strong employment history and additional collateral"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.outcome: eq Approve
+  res.body.reasons: isDefined
+  res.body.decidedByUserId: isDefined
+  res.body.decidedAt: isDefined
+}
+
+tests {
+  test("Manual decision creates decision record", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body.outcome).to.equal("Approve");
+    expect(res.body.reasons).to.be.an("array");
+    expect(res.body.reasons.length).to.be.greaterThan(0);
+    expect(res.body.decidedByUserId).to.be.a("number");
+    expect(res.body.decidedAt).to.be.a("string");
+  });
+}

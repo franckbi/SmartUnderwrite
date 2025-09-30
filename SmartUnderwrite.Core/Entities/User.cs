@@ -12,6 +12,7 @@ public class User : IdentityUser<int>
 
     // Navigation properties
     public Affiliate? Affiliate { get; set; }
+    public ICollection<Decision> Decisions { get; set; } = new List<Decision>();
 }
 
 public class Role : IdentityRole<int>

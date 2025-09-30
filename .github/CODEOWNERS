@@ -1,0 +1,23 @@
+# Global code owners
+* @smartunderwrite/core-team
+
+# Infrastructure and deployment
+terraform/ @smartunderwrite/devops-team
+.github/workflows/ @smartunderwrite/devops-team
+DEPLOYMENT.md @smartunderwrite/devops-team
+
+# Backend code
+SmartUnderwrite.Api/ @smartunderwrite/backend-team
+SmartUnderwrite.Core/ @smartunderwrite/backend-team
+SmartUnderwrite.Infrastructure/ @smartunderwrite/backend-team
+
+# Frontend code
+SmartUnderwrite.Frontend/ @smartunderwrite/frontend-team
+
+# Tests
+SmartUnderwrite.Tests/ @smartunderwrite/backend-team
+SmartUnderwrite.IntegrationTests/ @smartunderwrite/backend-team
+api-tests/ @smartunderwrite/qa-team
+
+# Documentation
+*.md @smartunderwrite/docs-team

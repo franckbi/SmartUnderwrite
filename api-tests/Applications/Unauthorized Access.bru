@@ -1,0 +1,21 @@
+meta {
+  name: Unauthorized Access
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/applications
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 401
+}
+
+tests {
+  test("Unauthorized access returns 401", function() {
+    expect(res.status).to.equal(401);
+  });
+}

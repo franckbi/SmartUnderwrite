@@ -1,0 +1,53 @@
+services:
+  # Development API with hot reload
+  api-dev:
+    build:
+      context: .
+      dockerfile: SmartUnderwrite.Api/Dockerfile.dev
+    container_name: smartunderwrite-api-dev
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=smartunderwrite;Username=postgres;Password=postgres123
+      - JwtSettings__SecretKey=your-super-secret-jwt-key-that-is-at-least-32-characters-long
+      - JwtSettings__Issuer=SmartUnderwrite
+      - JwtSettings__Audience=SmartUnderwrite
+      - JwtSettings__ExpiryMinutes=15
+      - MinioSettings__Endpoint=minio:9000
+      - MinioSettings__AccessKey=minioadmin
+      - MinioSettings__SecretKey=minioadmin123
+      - MinioSettings__BucketName=smartunderwrite-documents
+      - MinioSettings__UseSSL=false
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./SmartUnderwrite.Api:/app/SmartUnderwrite.Api
+      - ./SmartUnderwrite.Core:/app/SmartUnderwrite.Core
+      - ./SmartUnderwrite.Infrastructure:/app/SmartUnderwrite.Infrastructure
+      - /app/SmartUnderwrite.Api/bin
+      - /app/SmartUnderwrite.Api/obj
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - smartunderwrite-network
+
+  # Development Frontend with hot reload
+  frontend-dev:
+    image: node:20-alpine
+    container_name: smartunderwrite-frontend-dev
+    working_dir: /app
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8080
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./SmartUnderwrite.Frontend:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    depends_on:
+      - api-dev
+    networks:
+      - smartunderwrite-network

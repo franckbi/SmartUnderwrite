@@ -1,0 +1,42 @@
+meta {
+  name: Login Affiliate
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "affiliate1@example.com",
+    "password": "Affiliate123!"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.token: isDefined
+  res.body.refreshToken: isDefined
+  res.body.user.email: eq affiliate1@example.com
+  res.body.user.roles: contains Affiliate
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setEnvVar("affiliateToken", res.body.token);
+  }
+}
+
+tests {
+  test("Affiliate login successful", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body.token).to.be.a("string");
+    expect(res.body.refreshToken).to.be.a("string");
+    expect(res.body.user.email).to.equal("affiliate1@example.com");
+    expect(res.body.user.roles).to.include("Affiliate");
+  });
+}

@@ -1,0 +1,66 @@
+meta {
+  name: Create Application
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/applications
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{affiliateToken}}
+}
+
+body:json {
+  {
+    "applicant": {
+      "firstName": "John",
+      "lastName": "Doe",
+      "ssnHash": "hashed_ssn_123",
+      "dateOfBirth": "1990-01-15T00:00:00Z",
+      "phone": "555-123-4567",
+      "email": "john.doe@example.com",
+      "address": {
+        "street": "123 Main St",
+        "city": "Anytown",
+        "state": "CA",
+        "zipCode": "12345"
+      }
+    },
+    "productType": "Personal Loan",
+    "amount": 25000,
+    "incomeMonthly": 5000,
+    "employmentType": "Full-Time",
+    "creditScore": 720
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.id: isDefined
+  res.body.status: eq Submitted
+  res.body.amount: eq 25000
+  res.body.applicant.firstName: eq John
+  res.body.applicant.lastName: eq Doe
+}
+
+script:post-response {
+  if (res.status === 200) {
+    bru.setEnvVar("testApplicationId", res.body.id);
+  }
+}
+
+tests {
+  test("Application created successfully", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body.id).to.be.a("number");
+    expect(res.body.status).to.equal("Submitted");
+    expect(res.body.amount).to.equal(25000);
+    expect(res.body.applicant.firstName).to.equal("John");
+    expect(res.body.applicant.lastName).to.equal("Doe");
+    expect(res.body.applicant.email).to.equal("john.doe@example.com");
+  });
+}

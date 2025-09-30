@@ -443,3 +443,9 @@
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.IntegrationTests/obj/Debug/net9.0/SmartUnderwrite.IntegrationTests.pdb
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.IntegrationTests/obj/Debug/net9.0/SmartUnderwrite.IntegrationTests.genruntimeconfig.cache
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.IntegrationTests/obj/Debug/net9.0/ref/SmartUnderwrite.IntegrationTests.dll
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.IntegrationTests/obj/Debug/net9.0/SmartUnderwrite.IntegrationTests.sourcelink.json
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.IntegrationTests/bin/Debug/net9.0/CommunityToolkit.HighPerformance.dll
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.IntegrationTests/bin/Debug/net9.0/Minio.dll
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.IntegrationTests/bin/Debug/net9.0/System.IO.Hashing.dll
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.IntegrationTests/bin/Debug/net9.0/System.Reactive.dll
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.IntegrationTests/bin/Debug/net9.0/Microsoft.EntityFrameworkCore.InMemory.dll

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SmartUnderwrite.Core.Entities;
+using SmartUnderwrite.Core.RulesEngine.Models;
 
 namespace SmartUnderwrite.Infrastructure.Data;
 
@@ -17,6 +18,7 @@ public class SmartUnderwriteDbContext : IdentityDbContext<User, Role, int>
     public DbSet<Document> Documents { get; set; }
     public DbSet<Decision> Decisions { get; set; }
     public DbSet<Rule> Rules { get; set; }
+    public DbSet<RuleVersion> RuleVersions { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -31,6 +33,7 @@ public class SmartUnderwriteDbContext : IdentityDbContext<User, Role, int>
         ConfigureDocumentEntity(modelBuilder);
         ConfigureDecisionEntity(modelBuilder);
         ConfigureRuleEntity(modelBuilder);
+        ConfigureRuleVersionEntity(modelBuilder);
         ConfigureAuditLogEntity(modelBuilder);
     }
 
@@ -100,6 +103,10 @@ public class SmartUnderwriteDbContext : IdentityDbContext<User, Role, int>
                   .WithMany()
                   .HasForeignKey(e => e.ApplicantId)
                   .OnDelete(DeleteBehavior.Restrict);
+
+            // Performance indexes
+            entity.HasIndex(e => new { e.AffiliateId, e.Status });
+            entity.HasIndex(e => new { e.Status, e.CreatedAt });
         });
     }
 
@@ -138,7 +145,7 @@ public class SmartUnderwriteDbContext : IdentityDbContext<User, Role, int>
                   .OnDelete(DeleteBehavior.Cascade);
                   
             entity.HasOne(e => e.DecidedByUser)
-                  .WithMany()
+                  .WithMany(u => u.Decisions)
                   .HasForeignKey(e => e.DecidedByUserId)
                   .OnDelete(DeleteBehavior.SetNull);
         });
@@ -154,6 +161,29 @@ public class SmartUnderwriteDbContext : IdentityDbContext<User, Role, int>
             entity.Property(e => e.RuleDefinition).IsRequired();
             entity.Property(e => e.Priority).IsRequired();
             entity.Property(e => e.IsActive).HasDefaultValue(true);
+
+            // Performance index for rule execution
+            entity.HasIndex(e => new { e.IsActive, e.Priority });
+        });
+    }
+
+    private static void ConfigureRuleVersionEntity(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<RuleVersion>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.OriginalRuleId).IsRequired();
+            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.RuleDefinition).IsRequired();
+            entity.Property(e => e.Priority).IsRequired();
+            entity.Property(e => e.Version).IsRequired();
+            entity.Property(e => e.CreatedBy).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.ChangeReason).HasMaxLength(500);
+
+            // Performance indexes
+            entity.HasIndex(e => new { e.OriginalRuleId, e.Version });
+            entity.HasIndex(e => e.CreatedAt);
         });
     }
 
