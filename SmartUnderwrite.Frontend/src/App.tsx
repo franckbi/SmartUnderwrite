@@ -5,8 +5,9 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
+import { theme } from "@/theme/theme";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -23,17 +24,6 @@ import { AffiliatesPage } from "@/pages/admin/AffiliatesPage";
 import { ReportsPage } from "@/pages/admin/ReportsPage";
 import { AuditLogsPage } from "@/pages/admin/AuditLogsPage";
 import { UserRole } from "@/types/auth";
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#1976d2",
-    },
-    secondary: {
-      main: "#dc004e",
-    },
-  },
-});
 
 function App() {
   return (
