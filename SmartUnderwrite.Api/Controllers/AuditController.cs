@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SmartUnderwrite.Api.Attributes;
 using SmartUnderwrite.Api.Constants;
 using SmartUnderwrite.Api.Models.Audit;
+using SmartUnderwrite.Api.Models.Application;
 using SmartUnderwrite.Api.Services;
 using SmartUnderwrite.Core.Entities;
 
@@ -23,18 +24,18 @@ public class AuditController : ControllerBase
     }
 
     /// <summary>
-    /// Get audit logs with optional filtering
+    /// Get audit logs with optional filtering and pagination
     /// </summary>
     /// <param name="request">Filter parameters</param>
-    /// <returns>List of audit logs</returns>
+    /// <returns>Paginated list of audit logs</returns>
     [HttpGet]
     [AuthorizeRoles(Roles.Admin, Roles.Underwriter)]
-    public async Task<ActionResult<IEnumerable<AuditLogDto>>> GetAuditLogs([FromQuery] AuditLogFilterRequest request)
+    public async Task<ActionResult<PagedResult<AuditLogDto>>> GetAuditLogs([FromQuery] AuditLogFilterRequest request)
     {
         try
         {
-            _logger.LogInformation("Retrieving audit logs with filters: EntityType={EntityType}, EntityId={EntityId}, FromDate={FromDate}, ToDate={ToDate}",
-                request.EntityType, request.EntityId, request.FromDate, request.ToDate);
+            _logger.LogInformation("Retrieving audit logs with filters: EntityType={EntityType}, EntityId={EntityId}, FromDate={FromDate}, ToDate={ToDate}, Page={PageNumber}, Size={PageSize}",
+                request.EntityType, request.EntityId, request.FromDate, request.ToDate, request.PageNumber, request.PageSize);
 
             var auditLogs = await _auditService.GetAuditLogsAsync(
                 request.EntityType,
@@ -42,11 +43,39 @@ public class AuditController : ControllerBase
                 request.FromDate,
                 request.ToDate);
 
-            var auditLogDtos = auditLogs.Select(MapToDto).ToList();
+            // Apply additional filters
+            if (request.UserId.HasValue)
+            {
+                auditLogs = auditLogs.Where(a => a.UserId == request.UserId.ToString());
+            }
 
-            _logger.LogInformation("Retrieved {Count} audit logs", auditLogDtos.Count);
+            if (!string.IsNullOrEmpty(request.Action))
+            {
+                auditLogs = auditLogs.Where(a => a.Action.Contains(request.Action, StringComparison.OrdinalIgnoreCase));
+            }
 
-            return Ok(auditLogDtos);
+            // Apply pagination
+            var totalCount = auditLogs.Count();
+            var pagedLogs = auditLogs
+                .OrderByDescending(a => a.Timestamp)
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToList();
+
+            var auditLogDtos = pagedLogs.Select(MapToDto).ToList();
+
+            var result = new PagedResult<AuditLogDto>
+            {
+                Items = auditLogDtos,
+                TotalCount = totalCount,
+                Page = request.PageNumber,
+                PageSize = request.PageSize
+            };
+
+            _logger.LogInformation("Retrieved {Count} audit logs (page {Page} of {TotalPages})", 
+                auditLogDtos.Count, request.PageNumber, result.TotalPages);
+
+            return Ok(result);
         }
         catch (Exception ex)
         {
@@ -165,15 +194,22 @@ public class AuditController : ControllerBase
 
     private static AuditLogDto MapToDto(AuditLog auditLog)
     {
+        // Parse UserId as integer, default to 0 if not valid
+        int.TryParse(auditLog.UserId, out var userId);
+
         return new AuditLogDto
         {
             Id = auditLog.Id,
+            UserId = userId,
+            UserName = "System User", // TODO: Load actual user name from database
+            Action = auditLog.Action,
             EntityType = auditLog.EntityType,
             EntityId = auditLog.EntityId,
-            Action = auditLog.Action,
-            Changes = auditLog.Changes,
-            UserId = auditLog.UserId,
-            Timestamp = auditLog.Timestamp
+            OldValues = null, // TODO: Parse from Changes JSON
+            NewValues = auditLog.Changes, // For now, put all changes in NewValues
+            Timestamp = auditLog.Timestamp,
+            IpAddress = "Unknown", // TODO: Store IP address in audit logs
+            UserAgent = "Unknown" // TODO: Store user agent in audit logs
         };
     }
 }

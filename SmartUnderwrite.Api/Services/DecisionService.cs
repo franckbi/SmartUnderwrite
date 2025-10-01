@@ -205,6 +205,60 @@ public class DecisionService : IDecisionService
         return decisions.Select(MapToDto).ToList();
     }
 
+    public async Task<PagedResult<DecisionDto>> GetDecisionsAsync(int pageNumber, int pageSize, ClaimsPrincipal user)
+    {
+        _logger.LogDebug("Getting paginated decisions: page {PageNumber}, size {PageSize}", pageNumber, pageSize);
+
+        var userRoles = user.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+        var query = _context.Decisions
+            .Include(d => d.LoanApplication)
+            .ThenInclude(la => la.Affiliate)
+            .Include(d => d.DecidedByUser)
+            .AsQueryable();
+
+        // Apply role-based filtering
+        if (userRoles.Contains("Affiliate"))
+        {
+            var userId = _currentUserService.GetUserId();
+            var userAffiliate = await _context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => u.AffiliateId)
+                .FirstOrDefaultAsync();
+
+            if (userAffiliate.HasValue)
+            {
+                query = query.Where(d => d.LoanApplication.AffiliateId == userAffiliate.Value);
+            }
+            else
+            {
+                // Affiliate user without affiliate assignment - return empty result
+                return new PagedResult<DecisionDto>
+                {
+                    Items = new List<DecisionDto>(),
+                    TotalCount = 0,
+                    Page = pageNumber,
+                    PageSize = pageSize
+                };
+            }
+        }
+        // Admins and underwriters can see all decisions
+
+        var totalCount = await query.CountAsync();
+        var decisions = await query
+            .OrderByDescending(d => d.DecidedAt)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResult<DecisionDto>
+        {
+            Items = decisions.Select(MapToDto).ToList(),
+            TotalCount = totalCount,
+            Page = pageNumber,
+            PageSize = pageSize
+        };
+    }
+
     private async Task<bool> CanUserViewApplicationAsync(int applicationId, ClaimsPrincipal user)
     {
         var userRoles = user.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
@@ -244,6 +298,67 @@ public class DecisionService : IDecisionService
         
         // Only admins and underwriters can make manual decisions
         return Task.FromResult(userRoles.Contains("Admin") || userRoles.Contains("Underwriter"));
+    }
+
+    public async Task<DecisionSummaryDto> GetDecisionSummaryAsync(ClaimsPrincipal user)
+    {
+        _logger.LogDebug("Getting decision summary");
+
+        var userRoles = user.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
+        var query = _context.Decisions
+            .Include(d => d.LoanApplication)
+            .AsQueryable();
+
+        // Apply role-based filtering
+        if (userRoles.Contains("Affiliate"))
+        {
+            var userId = _currentUserService.GetUserId();
+            var userAffiliate = await _context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => u.AffiliateId)
+                .FirstOrDefaultAsync();
+
+            if (userAffiliate.HasValue)
+            {
+                query = query.Where(d => d.LoanApplication.AffiliateId == userAffiliate.Value);
+            }
+            else
+            {
+                // Affiliate user without affiliate assignment - return empty summary
+                return new DecisionSummaryDto
+                {
+                    TotalDecisions = 0,
+                    ApprovedCount = 0,
+                    RejectedCount = 0,
+                    ManualReviewCount = 0,
+                    AverageScore = 0,
+                    ManualDecisionCount = 0,
+                    AutomatedDecisionCount = 0
+                };
+            }
+        }
+        // Admins and underwriters can see all decisions
+
+        var decisions = await query.ToListAsync();
+
+        var totalDecisions = decisions.Count;
+        var approvedCount = decisions.Count(d => d.Outcome == DecisionOutcome.Approve);
+        var rejectedCount = decisions.Count(d => d.Outcome == DecisionOutcome.Reject);
+        var manualReviewCount = decisions.Count(d => d.Outcome == DecisionOutcome.ManualReview);
+        var averageScore = decisions.Any() ? decisions.Average(d => d.Score) : 0;
+        var manualDecisionCount = decisions.Count(d => d.DecidedByUserId != null);
+        var automatedDecisionCount = decisions.Count(d => d.DecidedByUserId == null);
+
+        return new DecisionSummaryDto
+        {
+            TotalDecisions = totalDecisions,
+            ApprovedCount = approvedCount,
+            RejectedCount = rejectedCount,
+            ManualReviewCount = manualReviewCount,
+            AverageScore = averageScore,
+            ManualDecisionCount = manualDecisionCount,
+            AutomatedDecisionCount = automatedDecisionCount
+        };
     }
 
     private static DecisionDto MapToDto(Decision decision)

@@ -45,20 +45,14 @@ if ! docker-compose ps api | grep -q "Up"; then
     sleep 10
 fi
 
-# Run migrations
+# Run migrations using the application
 echo "🔄 Running database migrations..."
-if docker-compose exec -T api dotnet ef database update; then
+if docker-compose exec -T api dotnet SmartUnderwrite.Api.dll --seed; then
     echo "✅ Database migrations completed successfully"
 else
     echo "❌ Database migrations failed"
     exit 1
 fi
-
-# Show migration status
-echo ""
-echo "📋 Migration Status:"
-echo "==================="
-docker-compose exec -T api dotnet ef migrations list
 
 echo ""
 echo "🎉 Database migration completed!"

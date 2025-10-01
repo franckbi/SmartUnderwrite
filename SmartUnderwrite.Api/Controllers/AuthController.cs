@@ -177,7 +177,14 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var principal = _jwtService.GetPrincipalFromExpiredToken(Request.Headers.Authorization.ToString().Replace("Bearer ", ""));
+            var authHeader = Request.Headers.Authorization.FirstOrDefault();
+            if (authHeader == null || !authHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized(new { message = "Invalid authorization header" });
+            }
+            
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+            var principal = _jwtService.GetPrincipalFromExpiredToken(token);
             if (principal == null)
             {
                 return Unauthorized(new { message = "Invalid access token" });

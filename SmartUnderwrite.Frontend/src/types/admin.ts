@@ -27,25 +27,24 @@ export interface UpdateRuleRequest extends CreateRuleRequest {
 export interface Affiliate {
   id: number;
   name: string;
-  contactEmail: string;
-  contactPhone: string;
-  address: string;
+  externalId: string;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
   userCount: number;
+  applicationCount: number;
 }
 
 export interface CreateAffiliateRequest {
   name: string;
-  contactEmail: string;
-  contactPhone: string;
-  address: string;
-  isActive: boolean;
+  externalId: string;
 }
 
-export interface UpdateAffiliateRequest extends CreateAffiliateRequest {
+export interface UpdateAffiliateRequest {
   id: number;
+  name: string;
+  externalId: string;
+  isActive: boolean;
 }
 
 export interface AuditLog {

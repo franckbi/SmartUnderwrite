@@ -60,12 +60,6 @@
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/staticwebassets.build.json
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/staticwebassets.development.json
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/staticwebassets.build.endpoints.json
-/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/staticwebassets/msbuild.SmartUnderwrite.Api.Microsoft.AspNetCore.StaticWebAssets.props
-/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/staticwebassets/msbuild.SmartUnderwrite.Api.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
-/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/staticwebassets/msbuild.build.SmartUnderwrite.Api.props
-/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/staticwebassets/msbuild.buildMultiTargeting.SmartUnderwrite.Api.props
-/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/staticwebassets/msbuild.buildTransitive.SmartUnderwrite.Api.props
-/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/staticwebassets.pack.json
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/SmartUnd.678660D9.Up2Date
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/SmartUnderwrite.Api.dll
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/refint/SmartUnderwrite.Api.dll
@@ -90,7 +84,6 @@
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/bin/Debug/net9.0/System.Composition.Hosting.dll
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/bin/Debug/net9.0/System.Composition.Runtime.dll
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/bin/Debug/net9.0/System.Composition.TypedParts.dll
-/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/bin/Debug/net9.0/System.Text.Json.dll
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/bin/Debug/net9.0/cs/Microsoft.CodeAnalysis.resources.dll
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/bin/Debug/net9.0/de/Microsoft.CodeAnalysis.resources.dll
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/bin/Debug/net9.0/es/Microsoft.CodeAnalysis.resources.dll
@@ -160,3 +153,8 @@
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/bin/Debug/net9.0/Minio.dll
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/bin/Debug/net9.0/System.IO.Hashing.dll
 /Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/bin/Debug/net9.0/System.Reactive.dll
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/rpswa.dswa.cache.json
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/rjimswa.dswa.cache.json
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/rjsmrazor.dswa.cache.json
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/rjsmcshtml.dswa.cache.json
+/Users/franckb/Desktop/Personal/PROJECTS/SmartUnderwrite/SmartUnderwrite.Api/obj/Debug/net9.0/staticwebassets.build.json.cache

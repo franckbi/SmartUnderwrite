@@ -7,7 +7,7 @@ using System.Security.Claims;
 namespace SmartUnderwrite.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/decisions")]
 [Authorize]
 public class DecisionController : ControllerBase
 {
@@ -18,6 +18,52 @@ public class DecisionController : ControllerBase
     {
         _decisionService = decisionService;
         _logger = logger;
+    }
+
+    /// <summary>
+    /// Creates a decision for a loan application
+    /// </summary>
+    /// <param name="request">The decision request</param>
+    /// <returns>The created decision</returns>
+    [HttpPost]
+    [Authorize(Policy = "UnderwriterOrAdmin")]
+    public async Task<ActionResult<DecisionDto>> CreateDecision([FromBody] DecisionRequest request)
+    {
+        try
+        {
+            _logger.LogInformation("Creating decision for application {ApplicationId}", request.ApplicationId);
+            
+            // Convert DecisionRequest to ManualDecisionRequest
+            var manualDecisionRequest = new ManualDecisionRequest
+            {
+                Outcome = request.Outcome,
+                Reasons = request.Reasons,
+                Justification = request.Notes
+            };
+
+            var decision = await _decisionService.MakeManualDecisionAsync(request.ApplicationId, manualDecisionRequest, User);
+            return Ok(decision);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning("Application not found: {Message}", ex.Message);
+            return NotFound(new { message = ex.Message });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning("Unauthorized access: {Message}", ex.Message);
+            return Forbid();
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning("Invalid operation: {Message}", ex.Message);
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating decision for application {ApplicationId}", request.ApplicationId);
+            return StatusCode(500, new { message = "An error occurred while creating the decision" });
+        }
     }
 
     /// <summary>
@@ -147,6 +193,62 @@ public class DecisionController : ControllerBase
         {
             _logger.LogError(ex, "Error getting decision history for application {ApplicationId}", applicationId);
             return StatusCode(500, new { message = "An error occurred while retrieving the decision history" });
+        }
+    }
+
+    /// <summary>
+    /// Gets a paginated list of decisions
+    /// </summary>
+    /// <param name="pageNumber">Page number (default: 1)</param>
+    /// <param name="pageSize">Page size (default: 10)</param>
+    /// <returns>Paginated list of decisions</returns>
+    [HttpGet]
+    [Authorize(Policy = "AllRoles")]
+    public async Task<ActionResult<PagedResult<DecisionDto>>> GetDecisions(
+        [FromQuery] int pageNumber = 1, 
+        [FromQuery] int pageSize = 10)
+    {
+        try
+        {
+            _logger.LogDebug("Getting decisions with pagination: page {PageNumber}, size {PageSize}", pageNumber, pageSize);
+            var decisions = await _decisionService.GetDecisionsAsync(pageNumber, pageSize, User);
+            return Ok(decisions);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning("Unauthorized access: {Message}", ex.Message);
+            return Forbid();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting decisions list");
+            return StatusCode(500, new { message = "An error occurred while retrieving decisions" });
+        }
+    }
+
+    /// <summary>
+    /// Gets a summary of decision statistics
+    /// </summary>
+    /// <returns>Decision summary statistics</returns>
+    [HttpGet("summary")]
+    [Authorize(Policy = "AllRoles")]
+    public async Task<ActionResult<DecisionSummaryDto>> GetDecisionSummary()
+    {
+        try
+        {
+            _logger.LogDebug("Getting decision summary");
+            var summary = await _decisionService.GetDecisionSummaryAsync(User);
+            return Ok(summary);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning("Unauthorized access: {Message}", ex.Message);
+            return Forbid();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting decision summary");
+            return StatusCode(500, new { message = "An error occurred while retrieving the decision summary" });
         }
     }
 }

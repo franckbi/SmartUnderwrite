@@ -25,6 +25,26 @@ public class AuditLogFilterRequest
     public DateTime? ToDate { get; set; }
 
     /// <summary>
+    /// Filter by user ID
+    /// </summary>
+    public int? UserId { get; set; }
+
+    /// <summary>
+    /// Filter by action type
+    /// </summary>
+    public string? Action { get; set; }
+
+    /// <summary>
+    /// Page number (1-based)
+    /// </summary>
+    public int PageNumber { get; set; } = 1;
+
+    /// <summary>
+    /// Page size
+    /// </summary>
+    public int PageSize { get; set; } = 25;
+
+    /// <summary>
     /// Validate date range
     /// </summary>
     /// <returns>Validation results</returns>

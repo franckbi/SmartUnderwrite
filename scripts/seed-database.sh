@@ -45,20 +45,15 @@ docker-compose up -d postgres minio
 wait_for_service "PostgreSQL" "docker-compose exec -T postgres pg_isready -U postgres"
 wait_for_service "MinIO" "curl -f http://localhost:9000/minio/health/live"
 
-# Run database migrations and seeding
-echo "🗄️  Running database migrations..."
-if docker-compose exec -T api dotnet ef database update > /dev/null 2>&1; then
-    echo "✅ Database migrations completed"
-else
-    echo "⚠️  Migrations may have failed or API is not running. Trying to start API..."
+# Check if API is running, start if needed
+if ! docker-compose ps api | grep -q "Up"; then
+    echo "🏗️  Starting API service..."
     docker-compose up -d api
     sleep 10
-    docker-compose exec -T api dotnet ef database update
-    echo "✅ Database migrations completed"
 fi
 
-echo "🌱 Seeding database with test data..."
-if docker-compose exec -T api dotnet run --project SmartUnderwrite.Api -- --seed; then
+echo "🌱 Running database creation and seeding..."
+if docker-compose exec -T api dotnet SmartUnderwrite.Api.dll --seed; then
     echo "✅ Database seeding completed successfully"
 else
     echo "❌ Database seeding failed"

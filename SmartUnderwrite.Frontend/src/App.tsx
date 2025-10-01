@@ -19,6 +19,9 @@ import { CreateApplicationPage } from "@/pages/applications/CreateApplicationPag
 import { DecisionsPage } from "@/pages/decisions/DecisionsPage";
 import { PendingDecisionsPage } from "@/pages/decisions/PendingDecisionsPage";
 import { AdminPage } from "@/pages/admin/AdminPage";
+import { AffiliatesPage } from "@/pages/admin/AffiliatesPage";
+import { ReportsPage } from "@/pages/admin/ReportsPage";
+import { AuditLogsPage } from "@/pages/admin/AuditLogsPage";
 import { UserRole } from "@/types/auth";
 
 const theme = createTheme({
@@ -106,7 +109,7 @@ function App() {
               }
             />
             <Route
-              path="/admin/*"
+              path="/admin/rules"
               element={
                 <ProtectedRoute requiredRoles={[UserRole.Admin]}>
                   <AppLayout>
@@ -114,6 +117,40 @@ function App() {
                   </AppLayout>
                 </ProtectedRoute>
               }
+            />
+            <Route
+              path="/admin/affiliates"
+              element={
+                <ProtectedRoute requiredRoles={[UserRole.Admin]}>
+                  <AppLayout>
+                    <AffiliatesPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/reports"
+              element={
+                <ProtectedRoute requiredRoles={[UserRole.Admin]}>
+                  <AppLayout>
+                    <ReportsPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/audit"
+              element={
+                <ProtectedRoute requiredRoles={[UserRole.Admin]}>
+                  <AppLayout>
+                    <AuditLogsPage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={<Navigate to="/admin/rules" replace />}
             />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
           </Routes>

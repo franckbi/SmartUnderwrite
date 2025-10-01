@@ -29,7 +29,7 @@ Log.Logger = new LoggerConfiguration()
         outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{CorrelationId}] {Message:lj} {Properties:j}{NewLine}{Exception}")
     .CreateLogger();
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(Environment.GetCommandLineArgs());
 
 // Add Serilog
 builder.Host.UseSerilog();
@@ -144,6 +144,7 @@ builder.Services.AddScoped<IStorageService, MinioStorageService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 builder.Services.AddScoped<IDecisionService, DecisionService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<IReportsService, ReportsService>();
 
 // Register Rules Engine services
 builder.Services.AddScoped<SmartUnderwrite.Core.RulesEngine.Interfaces.IRulesEngine, SmartUnderwrite.Core.RulesEngine.Engine.RulesEngine>();
@@ -154,16 +155,27 @@ builder.Services.AddScoped<SmartUnderwrite.Core.RulesEngine.Interfaces.IExpressi
 builder.Services.AddScoped<SmartUnderwrite.Core.RulesEngine.Interfaces.IRuleService, SmartUnderwrite.Core.RulesEngine.Services.RuleService>();
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+// Add Swagger UI for development
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+}
+
 var app = builder.Build();
 
 // Handle command line arguments for seeding
-var args = Environment.GetCommandLineArgs();
-if (args.Contains("--seed"))
+var commandLineArgs = Environment.GetCommandLineArgs();
+if (commandLineArgs.Contains("--seed"))
 {
     await SeedDatabaseAsync(app.Services);
     return;
@@ -179,6 +191,8 @@ if (app.Environment.IsDevelopment())
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
@@ -231,8 +245,8 @@ static async Task SeedDatabaseAsync(IServiceProvider services)
         Log.Information("Starting database migration and seeding...");
         
         // Ensure database is created and migrated
-        await context.Database.MigrateAsync();
-        Log.Information("Database migration completed");
+        await context.Database.EnsureCreatedAsync();
+        Log.Information("Database creation completed");
         
         // Seed data
         await SmartUnderwrite.Infrastructure.Data.SeedData.SeedAsync(context, userManager, roleManager);

@@ -60,12 +60,18 @@ export class AdminService {
     return await apiClient.post<Affiliate>("/affiliates", request);
   }
 
-  async updateAffiliate(request: UpdateAffiliateRequest): Promise<Affiliate> {
-    return await apiClient.put<Affiliate>(`/affiliates/${request.id}`, request);
+  async updateAffiliate(
+    request: UpdateAffiliateRequest & { id: number }
+  ): Promise<Affiliate> {
+    return await apiClient.put<Affiliate>(`/affiliates/${request.id}`, {
+      name: request.name,
+      externalId: request.externalId,
+      isActive: request.isActive,
+    });
   }
 
-  async deleteAffiliate(id: number): Promise<void> {
-    return await apiClient.delete<void>(`/affiliates/${id}`);
+  async deleteAffiliate(id: number): Promise<Affiliate> {
+    return await apiClient.post<Affiliate>(`/affiliates/${id}/deactivate`);
   }
 
   // Audit Logs

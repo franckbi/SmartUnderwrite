@@ -53,3 +53,14 @@ public class DecisionDto
     public DateTime DecidedAt { get; set; }
     public bool IsAutomated => DecidedByUserId == null;
 }
+
+public class DecisionSummaryDto
+{
+    public int TotalDecisions { get; set; }
+    public int ApprovedCount { get; set; }
+    public int RejectedCount { get; set; }
+    public int ManualReviewCount { get; set; }
+    public double AverageScore { get; set; }
+    public int ManualDecisionCount { get; set; }
+    public int AutomatedDecisionCount { get; set; }
+}

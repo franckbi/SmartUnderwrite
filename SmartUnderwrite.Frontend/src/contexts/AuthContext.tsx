@@ -89,7 +89,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authService.login(credentials);
       dispatch({
         type: "SET_USER",
-        payload: { user: response.user, token: response.token },
+        payload: { user: response.user, token: response.accessToken },
       });
     } catch (error) {
       dispatch({ type: "SET_LOADING", payload: false });
@@ -103,7 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await authService.register(userData);
       dispatch({
         type: "SET_USER",
-        payload: { user: response.user, token: response.token },
+        payload: { user: response.user, token: response.accessToken },
       });
     } catch (error) {
       dispatch({ type: "SET_LOADING", payload: false });

@@ -61,18 +61,18 @@ test_api_endpoints() {
     echo "🔗 Testing API endpoints..."
     
     # Test health endpoint
-    if curl -f -s http://localhost:8080/healthz > /dev/null 2>&1; then
+    if curl -f -s http://localhost:8080/api/health/healthz > /dev/null 2>&1; then
         echo -e "   Health endpoint: ${GREEN}✅ Working${NC}"
     else
         echo -e "   Health endpoint: ${RED}❌ Failed${NC}"
         return 1
     fi
     
-    # Test Swagger endpoint
-    if curl -f -s http://localhost:8080/swagger/index.html > /dev/null 2>&1; then
-        echo -e "   Swagger UI: ${GREEN}✅ Working${NC}"
+    # Test OpenAPI endpoint (Swagger JSON)
+    if curl -f -s http://localhost:8080/openapi/v1.json > /dev/null 2>&1; then
+        echo -e "   OpenAPI Spec: ${GREEN}✅ Working${NC}"
     else
-        echo -e "   Swagger UI: ${RED}❌ Failed${NC}"
+        echo -e "   OpenAPI Spec: ${RED}❌ Failed${NC}"
         return 1
     fi
     
@@ -88,7 +88,7 @@ test_authentication() {
         -H "Content-Type: application/json" \
         -d '{"email":"admin@smartunderwrite.com","password":"Admin123!"}' 2>/dev/null)
     
-    if echo "$login_response" | grep -q "token"; then
+    if echo "$login_response" | grep -q "accessToken"; then
         echo -e "   Admin login: ${GREEN}✅ Working${NC}"
         return 0
     else
@@ -111,7 +111,7 @@ fi
 echo "🐳 Docker Services:"
 check_service "PostgreSQL" "docker-compose exec -T postgres pg_isready -U postgres" "localhost:5432"
 check_service "MinIO" "curl -f http://localhost:9000/minio/health/live" "http://localhost:9001"
-check_service "API" "curl -f http://localhost:8080/healthz" "http://localhost:8080"
+check_service "API" "curl -f http://localhost:8080/api/health/healthz" "http://localhost:8080"
 check_service "Frontend" "curl -f http://localhost:3000/health" "http://localhost:3000"
 
 echo ""

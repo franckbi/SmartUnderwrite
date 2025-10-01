@@ -16,11 +16,19 @@ import {
   Button,
   Typography,
   Toolbar,
+  Avatar,
+  Tooltip,
+  Fade,
+  useTheme,
+  alpha,
 } from "@mui/material";
 import {
   Visibility as ViewIcon,
   Add as AddIcon,
   Search as SearchIcon,
+  Person as PersonIcon,
+  AttachMoney as MoneyIcon,
+  Business as BusinessIcon,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import {
@@ -48,6 +56,7 @@ const statusColors: Record<
 
 export const ApplicationList: React.FC = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
   const { hasRole } = useAuth();
   const { error, handleError, clearError } = useErrorHandler();
 
@@ -192,44 +201,123 @@ export const ApplicationList: React.FC = () => {
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Applicant</TableCell>
-              <TableCell>Product</TableCell>
-              <TableCell>Amount</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Created</TableCell>
-              <TableCell>Actions</TableCell>
+            <TableRow sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05) }}>
+              <TableCell sx={{ fontWeight: 600 }}>ID</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Applicant</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Product</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Amount</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Created</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {applications.items.map((application) => (
-              <TableRow key={application.id} hover>
-                <TableCell>{application.id}</TableCell>
-                <TableCell>
-                  {application.applicant.firstName}{" "}
-                  {application.applicant.lastName}
-                </TableCell>
-                <TableCell>{application.productType}</TableCell>
-                <TableCell>{formatCurrency(application.amount)}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={application.status}
-                    color={statusColors[application.status]}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>{formatDate(application.createdAt)}</TableCell>
-                <TableCell>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleViewApplication(application.id)}
-                    title="View Details"
-                  >
-                    <ViewIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
+            {applications.items.map((application, index) => (
+              <Fade in timeout={300 + index * 100} key={application.id}>
+                <TableRow
+                  hover
+                  sx={{
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      bgcolor: alpha(theme.palette.primary.main, 0.02),
+                      transform: "scale(1.001)",
+                    },
+                  }}
+                  onClick={() => handleViewApplication(application.id)}
+                >
+                  <TableCell>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 600,
+                        color: theme.palette.primary.main,
+                      }}
+                    >
+                      #{application.id}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <Avatar
+                        sx={{
+                          width: 32,
+                          height: 32,
+                          bgcolor: theme.palette.secondary.main,
+                          fontSize: "0.875rem",
+                        }}
+                      >
+                        {application.applicant.firstName.charAt(0)}
+                        {application.applicant.lastName.charAt(0)}
+                      </Avatar>
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          {application.applicant.firstName}{" "}
+                          {application.applicant.lastName}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {application.applicant.email}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <BusinessIcon fontSize="small" color="action" />
+                      <Typography variant="body2">
+                        {application.productType}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <MoneyIcon fontSize="small" color="success" />
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 600,
+                          color: theme.palette.success.main,
+                        }}
+                      >
+                        {formatCurrency(application.amount)}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={application.status}
+                      color={statusColors[application.status]}
+                      size="small"
+                      sx={{ fontWeight: 500 }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" color="text.secondary">
+                      {formatDate(application.createdAt)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Tooltip title="View Details">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewApplication(application.id);
+                        }}
+                        sx={{
+                          transition: "all 0.2s ease",
+                          "&:hover": {
+                            bgcolor: alpha(theme.palette.primary.main, 0.1),
+                            transform: "scale(1.1)",
+                          },
+                        }}
+                      >
+                        <ViewIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              </Fade>
             ))}
           </TableBody>
         </Table>

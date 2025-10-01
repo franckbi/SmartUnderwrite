@@ -37,4 +37,20 @@ public interface IDecisionService
     /// <param name="user">The requesting user</param>
     /// <returns>List of decisions ordered by creation date</returns>
     Task<List<DecisionDto>> GetDecisionHistoryAsync(int applicationId, ClaimsPrincipal user);
+
+    /// <summary>
+    /// Gets a paginated list of decisions
+    /// </summary>
+    /// <param name="pageNumber">Page number</param>
+    /// <param name="pageSize">Page size</param>
+    /// <param name="user">The requesting user</param>
+    /// <returns>Paginated list of decisions</returns>
+    Task<PagedResult<DecisionDto>> GetDecisionsAsync(int pageNumber, int pageSize, ClaimsPrincipal user);
+
+    /// <summary>
+    /// Gets a summary of decision statistics
+    /// </summary>
+    /// <param name="user">The requesting user</param>
+    /// <returns>Decision summary statistics</returns>
+    Task<DecisionSummaryDto> GetDecisionSummaryAsync(ClaimsPrincipal user);
 }

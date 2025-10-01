@@ -12,6 +12,15 @@ public class SmartUnderwriteDbContext : IdentityDbContext<User, Role, int>
     {
     }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+        
+        // Suppress the pending model changes warning for development
+        optionsBuilder.ConfigureWarnings(warnings =>
+            warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+    }
+
     public DbSet<Affiliate> Affiliates { get; set; }
     public DbSet<Applicant> Applicants { get; set; }
     public DbSet<LoanApplication> LoanApplications { get; set; }
@@ -137,7 +146,8 @@ public class SmartUnderwriteDbContext : IdentityDbContext<User, Role, int>
             entity.Property(e => e.Reasons)
                   .HasConversion(
                       v => string.Join(';', v),
-                      v => v.Split(';', StringSplitOptions.RemoveEmptyEntries));
+                      v => v.Split(';', StringSplitOptions.RemoveEmptyEntries))
+                  .HasColumnType("text");
             
             entity.HasOne(e => e.LoanApplication)
                   .WithMany(la => la.Decisions)
